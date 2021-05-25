@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xmlns:content="http://www.springframework.org/schema/context"
+   xmlns:jms="http://www.springframework.org/schema/jms"
+   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/jms http://www.springframework.org/schema/jms/spring-jms.xsd" >
+
+    <!-- 声明连接工厂-->
+    <bean id="jmsFactory"
+        class="org.apache.activemq.pool.PooledConnectionFactory"
+        destroy-method="stop">
+        <property name="connectionFactory">
+            <bean class="org.apache.activemq.ActiveMQConnectionFactory">
+                <property name="brokerURL" value="tcp://127.0.0.1:61616" />
+            </bean>
+        </property>
+        <property name="maxConnections" value="100" />
+    </bean>
+
+    <!-- 声明默认目的地-->
+    <bean id="destinationTopic" class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg name="name" value="destinationTopicName" ></constructor-arg>
+    </bean>
+
+    <!-- 声明操作MQ的对象jmsTemplate-->
+    <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+        <!-- 注入连接口-->
+        <property name="connectionFactory" ref="jmsFactory"></property>
+        <!-- 注入消息发送的默认目的地-->
+        <property name="defaultDestination" ref="destinationTopic"></property>
+        <!-- 消息转换器-->
+        <property name="messageConverter">
+            <bean class="org.springframework.jms.support.converter.SimpleMessageConverter" />
+        </property>
+    </bean>
+
+
+</beans>
